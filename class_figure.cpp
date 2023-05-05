@@ -2,7 +2,8 @@
 bool FreeDiag(int x, int x_, int y, int y_);//проверка, есть ли внутри диагонали (x,y) - (x_, y_), включая последнюю клетку, другие фигуры и диагональ ли это
 bool FreeVert(int x,int x_, int y, int y_);//проверка, есть ли внутри вертикали (x, y) - (x, y_), включая последнюю клетку, другие фигуры и вертикаль ли это
 bool FreeHorizont(int x, int x_, int y, int y_);//проверка, есть ли внутри горизонтали (x,y) - (x_, y), включая последнюю клетку, другие фигуры и горизонталь ли это
-
+bool IsItChecked(int x_, int y_);//проверка на "шаховость" поля
+void Move_to_square(int x, int x_, int y, int y_);//переместить фигуру на поле
 //виртуальный класс фигуры
 class Piece{
 public:
@@ -21,10 +22,7 @@ class Bishop: public Piece{
         free_diag = FreeDiag(x, x_, y, y_);
         if((free_diag==true))
         {
-            Board[x+8*y]=0;
-            x = x_;
-            y = y_;
-            Board[x+8*y]=1;
+            Move_to_square(x, x_, y, y_);
         }
     };
 };
@@ -38,36 +36,24 @@ class Rook: public Piece{
             free_line = FreeHorizont(x, x_, y,y_);
         }
         if(free_line == true){
-            Board[x+8*y]=0;
-            x = x_;
-            y = y_;
-            Board[x+8*y]=1;
+            Move_to_square(x, x_, y, y_);
         }
     }
 };
 class Knight: public Piece{
     void Move(int x_, int y_){
         if(((abs(x-x_)==2)&&(abs(y-y_==1)))||((abs(y-y_==2)&&(abs(x-x_)==1)))&&Board[x_+y_*8]==0){
-            Board[x+8*y]=0;
-            x=x_;
-            y=y_;
-            Board[x+8*y]=1;
+            Move_to_square(x, x_, y, y_);
         }
     }
 };
 class Pawn: public Piece{
     void Move (int x_, int y_){
         if((y_-y==1)&&(x_==x)&&(Board[x+y_*8] ==0)){
-            Board[x+8*y]=0;
-            x = x_;
-            y = y_;
-            Board[x+8*y]=1;
+            Move_to_square(x, x_, y, y_);
         }
         if((y_-y==2)&&(x_==x)&&(Board[x+y_*8]==0)&&(Board[x+y_*8-8]==0)){
-            Board[x+8*y]=0;
-            x = x_;
-            y = y_;
-            Board[x+8*y]=1;
+            Move_to_square(x, x_, y, y_);
         }
     }
 };
@@ -78,34 +64,29 @@ class Queen: public Piece{
         if(abs(x-x_)==abs(y-y_)){
             bool free_diag = FreeDiag(x,x_,y,y_);
             if(free_diag == true){
-                Board[x+8*y]=0;
-                x = x_;
-                y = y_;
-                Board[x+8*y]=1;
+                Move_to_square(x, x_, y, y_);
             }
         }
         if((x==x_)&&(y!=y_)){
             bool free_line = FreeVert(x,x_,y,y_);
             if(free_line == true){
-                Board[x+8*y]=0;
-                x = x_;
-                y = y_;
-                Board[x+8*y]=1;
+                Move_to_square(x, x_, y, y_);
             }
         }
         if((x!=x_)&&(y==y_)){
             bool free_line = FreeHorizont(x, x_, y, y_);
             if(free_line ==true){
-                Board[x+8*y]=0;
-                x = x_;
-                y = y_;
-                Board[x+8*y]=1;
+               Move_to_square(x, x_, y, y_);
             }
         }
     }
 };
 class King: public Piece{
-
+    void Move(int x_, int y_){
+        if ((abs(x-x_)<=1)&&(abs(y-y_)<=1)&&IsItChecked(x_,y_)){
+            Move_to_square(x, x_, y, y_);
+        }
+    }
 };
 int main(){
 
@@ -182,6 +163,12 @@ bool FreeHorizont(int x, int x_, int y, int y_){
         }
     }
     return true;
+}
+void Move_to_square(int x, int x_, int y, int y_){
+    Board[x+8*y]=0;
+    x = x_;
+    y = y_;
+    Board[x+8*y]=1;
 }
 
 
